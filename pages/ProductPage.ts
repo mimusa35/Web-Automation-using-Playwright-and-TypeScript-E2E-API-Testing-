@@ -3,12 +3,7 @@ import { Page, expect } from "@playwright/test";
 export class ProductPage {
   constructor(private page: Page) {}
 
-  async navigateToHomePage() {
-    await this.page.goto("https://automationexercise.com/");
-    await expect(this.page.getByRole("link", { name: " Home" })).toBeVisible();
-  }
-
-  async goToProductsPage() {
+  async goToProducts() {
     await this.page.getByRole("link", { name: " Products" }).click();
     await expect(this.page.getByRole("heading", { name: "All Products" })).toBeVisible();
   }
@@ -23,9 +18,14 @@ export class ProductPage {
   }
 
   async verifyProductDetails(title: string, price: string) {
-    await expect(
-      this.page.getByRole("heading", { name: new RegExp(title.split(" ")[0], "i") })
-    ).toBeVisible();
+    await expect(this.page.getByRole("heading", { name: new RegExp(title, "i") })).toBeVisible();
     await expect(this.page.getByText(price)).toBeVisible();
+  }
+
+  async addToCart(quantity: number) {
+    await this.page.locator("#quantity").fill(quantity.toString());
+    await this.page.getByRole("button", { name: " Add to cart" }).click();
+    await expect(this.page.getByText("Your product has been added")).toBeVisible();
+    await this.page.getByRole("button", { name: "Continue Shopping" }).click();
   }
 }
