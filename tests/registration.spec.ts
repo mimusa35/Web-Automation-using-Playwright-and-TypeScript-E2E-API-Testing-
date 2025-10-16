@@ -1,36 +1,21 @@
-import { test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { HomePage } from "../pages/HomePage";
 import { SignupPage } from "../pages/SignupPage";
-import { AccountPage } from "../pages/AccountPage";
 
-test.describe("User Registration Test - AutomationExercise", () => {
-  test("should register a new user successfully", async ({ page }) => {
-    const home = new HomePage(page);
-    const signup = new SignupPage(page);
-    const account = new AccountPage(page);
+test("User Registration Test", async ({ page }) => {
+  const home = new HomePage(page);
+  const signup = new SignupPage(page);
 
-    // Launch browser and verify homepage
-    await home.navigateToHomePage();
+  await home.gotoHomePage();
+  await home.clickSignupLogin();
 
-    // Go to signup page
-    await home.clickSignupLogin();
-    await signup.verifySignupPageVisible();
+  const name = "Mimusa Azim Mim";
+  const email = `mimusamim${Date.now()}@gmail.com`;
 
-    // Fill basic signup form
-    const name = "Mimusa Azim Mim";
-    const email = `mimusamim${Date.now()}@gmail.com`;
-    await signup.fillSignupForm(name, email);
+  await signup.signup(name, email);
+  await signup.fillRegistrationDetails("Mimusa35");
+  await signup.fillAddressDetails();
+  await signup.createAccount();
 
-    // Fill registration and address details
-    await signup.fillRegistrationDetails();
-    await signup.fillAddressDetails();
-
-    // Submit and validate account creation
-    await signup.submitForm();
-    await account.verifyAccountCreated();
-
-    // Continue and verify login
-    await account.continueToAccount();
-    await account.verifyLoggedInAs(name);
-  });
+  await expect(page.getByText(`Logged in as ${name}`)).toBeVisible();
 });

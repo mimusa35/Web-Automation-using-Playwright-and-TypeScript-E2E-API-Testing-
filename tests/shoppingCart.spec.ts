@@ -1,39 +1,41 @@
-// Scenario 3
-
-import { test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { HomePage } from "../pages/HomePage";
 import { ProductPage } from "../pages/ProductPage";
 import { CartPage } from "../pages/CartPage";
-import { CheckoutPage } from "../pages/CheckoutPage";
 import { PaymentPage } from "../pages/PaymentPage";
 
-test.describe("Scenario 3 - Shopping Cart Functionality Test", () => {
-  test("Complete checkout flow successfully", async ({ page }) => {
-    const home = new HomePage(page);
-    const product = new ProductPage(page);
-    const cart = new CartPage(page);
-    const checkout = new CheckoutPage(page);
-    const payment = new PaymentPage(page);
+test("Shopping Cart Functionality Test", async ({ page }) => {
+  const home = new HomePage(page);
+  const product = new ProductPage(page);
+  const cart = new CartPage(page);
+  const payment = new PaymentPage(page);
 
-    await home.gotoHomePage();
-    await home.clickSignupLogin();
+  // Login
+  await home.gotoHomePage();
+  await home.clickSignupLogin();
+  await page.locator('form').filter({ hasText: "Login" }).getByPlaceholder("Email Address").fill(process.env.USER_EMAIL!);
+  await page.getByRole("textbox", { name: "Password" }).fill(process.env.USER_PASSWORD!);
+  await page.getByRole("button", { name: "Login" }).click();
+  await expect(page.getByText("Logged in")).toBeVisible();
 
-    // login
-    await page.locator('form').filter({ hasText: "Login" }).getByPlaceholder("Email Address").fill("faizulcse@yopmail.com");
-    await page.getByRole("textbox", { name: "Password" }).fill("Pass@1234");
-    await page.getByRole("button", { name: "Login" }).click();
+  // Add product to cart
+  await home.clickProducts();
+  await product.searchProduct("Premium Polo T-Shirts");
+  await product.viewProduct();
+  await product.addToCart(2);
 
-    await product.goToProducts();
-    await product.searchProduct("Premium Polo T-Shirts");
-    await product.viewProduct();
-    await product.addToCart(2);
+  // Checkout
+  await home.clickCart();
+  await cart.proceedToCheckout();
 
-    await cart.openCart();
-    await cart.proceedToCheckout();
-    await checkout.verifyAddressAndOrder();
-    await checkout.placeOrder();
+  // Payment
+  await payment.placeOrder(
+    process.env.CARD_NAME!,
+    process.env.CARD_NUMBER!,
+    process.env.CVC!,
+    process.env.EXP_MONTH!,
+    process.env.EXP_YEAR!
+  );
 
-    await payment.fillPaymentDetails();
-    await payment.confirmPaymentAndDownloadInvoice();
-  });
+  await payment.downloadInvoice();
 });
