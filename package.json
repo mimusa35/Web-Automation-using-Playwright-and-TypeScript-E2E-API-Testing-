@@ -1,0 +1,12 @@
+{
+  "name": "automationexercise-tests",
+  "version": "1.0.0",
+  "description": "Playwright automation for user registration flow on automationexercise.com",
+  "scripts": {
+    "test": "npx playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "typescript": "^5.4.0"
+  }
+}
