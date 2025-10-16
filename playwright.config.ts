@@ -1,13 +1,20 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests",
-  timeout: 120000,
+  timeout: 60_000,
+  retries: 1,
+  reporter: [["html", { outputFolder: "playwright-report" }]],
   use: {
+    baseURL: process.env.BASE_URL,
     headless: false,
-    baseURL: "https://automationexercise.com",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    trace: "retain-on-failure",
   },
-  reporter: [["html", { outputFolder: "reports" }]],
+  projects: [
+    { name: "Chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "Firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "Webkit", use: { ...devices["Desktop Safari"] } },
+  ],
 });
